@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>The Bunk Spot | Mobile Ordering</title>
+  <title>The Ice Spot | Mobile Ordering</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Firebase Compatibility SDKs -->
@@ -25,7 +25,7 @@
         <i data-lucide="ice-cream" class="w-5 h-5"></i>
       </div>
       <div>
-        <h1 class="text-base font-extrabold tracking-tight text-slate-900 leading-none">THE BUNK SPOT</h1>
+        <h1 class="text-base font-extrabold tracking-tight text-slate-900 leading-none">THE ICE SPOT</h1>
         <p class="text-[10px] font-semibold text-amber-600 uppercase tracking-wider">Campus Dessert Bar</p>
       </div>
     </div>
@@ -52,11 +52,11 @@
   <!-- Category Nav -->
   <div class="px-4 mb-3 flex gap-2 overflow-x-auto hide-scrollbar">
     <button onclick="filterCategory('all', event)" class="cat-pill active px-4 py-1.5 rounded-full text-xs font-bold bg-slate-900 text-white transition whitespace-nowrap">All Items</button>
-    <button onclick="filterCategory('combos', event)" class="cat-pill px-4 py-1.5 rounded-full text-xs font-bold bg-white text-slate-600 border border-slate-200 transition whitespace-nowrap">🔥 Campus Combos</button>
-    <button onclick="filterCategory('treats', event)" class="cat-pill px-4 py-1.5 rounded-full text-xs font-bold bg-white text-slate-600 border border-slate-200 transition whitespace-nowrap">Ice Creams (₹5 - ₹90)</button>
+    <button onclick="filterCategory('combos', event)" class="cat-pill px-4 py-1.5 rounded-full text-xs font-bold bg-white text-slate-600 border border-slate-200 transition whitespace-nowrap">🔥 Special Combos</button>
+    <button onclick="filterCategory('treats', event)" class="cat-pill px-4 py-1.5 rounded-full text-xs font-bold bg-white text-slate-600 border border-slate-200 transition whitespace-nowrap">Ice Creams & Treats</button>
   </div>
 
-  <!-- Menu List (Ascending Price Sequence) -->
+  <!-- Menu List -->
   <main class="px-4 space-y-3" id="menuContainer"></main>
 
   <!-- Floating Sticky Cart Bar -->
@@ -100,7 +100,7 @@
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Phone Number (WhatsApp Bill Ke Liye)</label>
+          <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Phone Number (WhatsApp Status Ke Liye)</label>
           <input type="tel" id="custPhone" required placeholder="10-digit mobile number" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white">
         </div>
 
@@ -130,25 +130,25 @@
     </div>
   </div>
 
-  <!-- Live Orders Status Modal -->
+  <!-- Live Orders Status Modal with Visual Timeline & WhatsApp Notification Button -->
   <div id="ordersModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl w-full max-w-md max-h-[85vh] overflow-y-auto p-5 shadow-2xl">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
         <div>
           <h3 class="font-bold text-slate-900 text-base">Your Active Orders</h3>
-          <p class="text-xs text-slate-500">Real-time status updates</p>
+          <p class="text-xs text-slate-500">Live visual tracker & WhatsApp updates</p>
         </div>
         <button onclick="toggleOrdersModal()" class="p-1 rounded-full text-slate-400 hover:text-slate-700">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <div id="activeOrdersList" class="space-y-3"></div>
+      <div id="activeOrdersList" class="space-y-4"></div>
     </div>
   </div>
 
   <script>
-    // 1. Firebase Integration
+    // 1. Firebase Initialization
     const firebaseConfig = {
       apiKey: "AIzaSyBNrqI6Qc5tU4Ittr1Cdk6B-wDGZAQ8pLc",
       authDomain: "the-bunk-spot-b93b9.firebaseapp.com",
@@ -160,21 +160,26 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 2. Full Ascending Price Catalog
+    // 2. Menu Catalog
     const menuItems = [
-      { id: 'm1', name: "Fresher’s Vibe", desc: "Popitos (Katcha Mango)(Minimum 4pc order)", price: 5, cat: "treats", badge: "Budget" },
-      { id: 'm2', name: "Gossip Bites", desc: "Cotton Candy Bites(Minimum 4pc order)", price: 5, cat: "treats", badge: "Budget" },
-      { id: 'm3', name: "The Backbencher", desc: "Ice Cream Donut (Cream N Cookie)(Minimum 2pc order)", price: 15, cat: "treats" },
-      { id: 'm4', name: "Attendance Short", desc: "Chocobar Mini", price: 30, cat: "treats" },
-      { id: 'c1', name: "Pocket Friendly Trio", desc: "Fresher's Vibe + Gossip Bites + Attendance Short", price: 35, cat: "combos", badge: "Combo Save ₹5" },
-      { id: 'm5', name: "Late Night Binge", desc: "Belgian Chocolate Sandwich", price: 45, cat: "treats" },
-      { id: 'm6', name: "Mood Swings", desc: "2-in-1 (Mango & Vanilla)", price: 45, cat: "treats" },
-      { id: 'c2', name: "The Backbencher Deal", desc: "1 Backbencher + 1 Late Night Binge", price: 55, cat: "combos", badge: "Combo Save ₹5" },
-      { id: 'm7', name: "Semester Topper", desc: "Kulfi King (Kesar Badam)", price: 75, cat: "treats" },
-      { id: 'm8', name: "Hostel Jugad", desc: "Mini Bar (Vanilla Fudge Brownie)", price: 75, cat: "treats" },
-      { id: 'm9', name: "Dual Buzz", desc: "Dual Bar (Butterscotch & Vanilla)", price: 75, cat: "treats" },
-      { id: 'm10', name: "Canteen Crush", desc: "Cookie Delight Bar", price: 90, cat: "treats", badge: "Signature" },
-      { id: 'c3', name: "Twin Blast Combo", desc: "1 Dual Buzz + 1 Hostel Jugad", price: 140, cat: "combos", badge: "Combo Save ₹10" }
+      { id: 'm1', name: "Cotton Candy", desc: "Sweet & fluffy cloud of happiness", price: 5, cat: "treats", badge: "₹5 Only" },
+      { id: 'm2', name: "Popitis", desc: "Tangy katcha mango burst", price: 5, cat: "treats", badge: "₹5 Only" },
+      { id: 'm3', name: "Donut", desc: "Cream & cookie frozen delight", price: 15, cat: "treats" },
+      { id: 'c1', name: "Combo 1 (Budget Treat)", desc: "Cotton Candy + Popitis + Donut + Chocobar Mini", price: 45, cat: "combos", badge: "Popular Combo" },
+      { id: 'm4', name: "Chocobar Mini", desc: "Crunchy chocolate coated snack", price: 25, cat: "treats" },
+      { id: 'm5', name: "Spiral", desc: "Twirled colorful joy pop", price: 30, cat: "treats" },
+      { id: 'm6', name: "2 in 1 (Mango & Vanilla)", desc: "Double flavor fruity-creamy rush", price: 40, cat: "treats" },
+      { id: 'c2', name: "Combo 2 (Sharing Pack)", desc: "2-in-1 (Mango & Vanilla) + Little Love + Donut + Cotton Candy", price: 95, cat: "combos", badge: "Best Value" },
+      { id: 'm7', name: "2 in 1 (Strawberry & Blackcurrant)", desc: "Berry fusion dual taste", price: 40, cat: "treats" },
+      { id: 'm8', name: "Little Love", desc: "Sweet heart bar for sweet moments", price: 40, cat: "treats" },
+      { id: 'm9', name: "Neapolitan", desc: "Classic multi-layer brick slice", price: 40, cat: "treats" },
+      { id: 'c3', name: "Combo 3 (Super Treat)", desc: "Dual Bar (Butterscotch & Vanilla) + 2-in-1 (Strawberry & Blackcurrant) + Chocobar Mini + Cotton Candy", price: 130, cat: "combos", badge: "Super Saver" },
+      { id: 'm10', name: "Ibar Mini (Mango Delight)", desc: "Rich & refreshing mango bar", price: 55, cat: "treats" },
+      { id: 'm11', name: "Kulfi King", desc: "Traditional royal malai kulfi", price: 65, cat: "treats", badge: "Classic" },
+      { id: 'm12', name: "Ibar Mini (Belgian Choco)", desc: "Premium rich chocolate indulgence", price: 65, cat: "treats" },
+      { id: 'c4', name: "Combo 4 (Mega Mega Pack)", desc: "Kulfi King + Ibar Mini (Mango Delight) + Neapolitan + Chocobar Mini + Cotton Candy", price: 180, cat: "combos", badge: "Mega Party" },
+      { id: 'm13', name: "Dual Bar (Butterscotch & Vanilla)", desc: "Double crunchy caramel blast", price: 70, cat: "treats", badge: "Best Seller" },
+      { id: 'm14', name: "Dual Bar (Strawberry & Vanilla)", desc: "Smooth strawberry & creamy vanilla", price: 70, cat: "treats", badge: "Best Seller" }
     ];
 
     let cart = {};
@@ -268,7 +273,7 @@
         </div>
       `;
 
-      const savedUser = JSON.parse(localStorage.getItem('bunk_user_profile') || '{}');
+      const savedUser = JSON.parse(localStorage.getItem('ice_spot_user_profile') || '{}');
       if (savedUser.name) document.getElementById('custName').value = savedUser.name;
       if (savedUser.phone) document.getElementById('custPhone').value = savedUser.phone;
       if (savedUser.spot) document.getElementById('custSpot').value = savedUser.spot;
@@ -291,7 +296,7 @@
       const spot = document.getElementById('custSpot').value.trim();
       const payMode = document.querySelector('input[name="payMode"]:checked').value;
 
-      localStorage.setItem('bunk_user_profile', JSON.stringify({ name, phone, spot }));
+      localStorage.setItem('ice_spot_user_profile', JSON.stringify({ name, phone, spot }));
 
       const orderId = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
       let items = [];
@@ -334,6 +339,19 @@
       modal.classList.toggle('hidden');
     }
 
+    // Function to open WhatsApp with status update message
+    function sendWhatsAppUpdate(phone, orderId, status, customerName) {
+      let msg = `Hello ${customerName}, update on your order #${orderId} at The Ice Spot: Status is now *${status}*! 🍦✨`;
+      if(status === 'Ready') {
+        msg = `Hello ${customerName}, great news! Your order #${orderId} is *Ready for Pickup* at the counter! 🎉🍦`;
+      }
+      const encodedMsg = encodeURIComponent(msg);
+      // Clean phone number format for WhatsApp (assuming Indian numbers, adding 91 if needed)
+      let formattedPhone = phone.replace(/\D/g, '');
+      if(formattedPhone.length === 10) formattedPhone = '91' + formattedPhone;
+      window.open(`https://wa.me/${formattedPhone}?text=${encodedMsg}`, '_blank');
+    }
+
     function listenToMyOrders(phone) {
       if (!phone) return;
       db.collection("orders").where("phone", "==", phone)
@@ -356,22 +374,58 @@
           orders.sort((a,b) => ((b.createdAt && b.createdAt.seconds) || 0) - ((a.createdAt && a.createdAt.seconds) || 0));
 
           orders.forEach(ord => {
-            let statusColor = "bg-amber-100 text-amber-800 border-amber-200";
-            if (ord.status === 'Preparing') statusColor = "bg-blue-100 text-blue-800 border-blue-200";
-            if (ord.status === 'Ready') statusColor = "bg-emerald-100 text-emerald-800 border-emerald-200";
-            if (ord.status === 'Completed') statusColor = "bg-slate-100 text-slate-600 border-slate-200";
+            let step1 = "bg-orange-500 text-white";
+            let step2 = "bg-slate-200 text-slate-500";
+            let step3 = "bg-slate-200 text-slate-500";
+            let line1 = "bg-slate-200";
+
+            if (ord.status === 'Preparing') {
+              step1 = "bg-emerald-500 text-white";
+              step2 = "bg-orange-500 text-white animate-pulse";
+              line1 = "bg-orange-500";
+            } else if (ord.status === 'Ready' || ord.status === 'Completed') {
+              step1 = "bg-emerald-500 text-white";
+              step2 = "bg-emerald-500 text-white";
+              step3 = ord.status === 'Completed' ? "bg-slate-400 text-white" : "bg-emerald-500 text-white animate-bounce";
+              line1 = "bg-emerald-500";
+            }
 
             container.innerHTML += `
-              <div class="border border-slate-200 rounded-2xl p-4 bg-slate-50">
-                <div class="flex justify-between items-center mb-2">
+              <div class="border border-slate-200 rounded-2xl p-4 bg-slate-50 space-y-3">
+                <div class="flex justify-between items-center">
                   <span class="text-xs font-black text-slate-900">#${ord.orderId}</span>
-                  <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${statusColor}">${ord.status}</span>
+                  <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-200">${ord.status}</span>
                 </div>
-                <p class="text-xs text-slate-600 mb-2">${ord.items.map(i => `${i.name} (${i.qty})`).join(', ')}</p>
-                <div class="flex justify-between items-center text-xs font-bold text-slate-800 pt-2 border-t border-slate-200/60">
+
+                <!-- Visual Progress Bar Timeline -->
+                <div class="flex items-center justify-between px-2 pt-2">
+                  <div class="flex flex-col items-center">
+                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${step1}">1</div>
+                    <span class="text-[9px] font-semibold text-slate-600 mt-1">Placed</span>
+                  </div>
+                  <div class="flex-1 h-1 mx-2 ${line1}"></div>
+                  <div class="flex flex-col items-center">
+                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${step2}">2</div>
+                    <span class="text-[9px] font-semibold text-slate-600 mt-1">Preparing</span>
+                  </div>
+                  <div class="flex-1 h-1 mx-2 bg-slate-200"></div>
+                  <div class="flex flex-col items-center">
+                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${step3}">3</div>
+                    <span class="text-[9px] font-semibold text-slate-600 mt-1">Ready</span>
+                  </div>
+                </div>
+
+                <p class="text-xs text-slate-600 border-t border-slate-200/60 pt-2">${ord.items.map(i => `${i.name} (${i.qty})`).join(', ')}</p>
+                <div class="flex justify-between items-center text-xs font-bold text-slate-800 pt-1">
                   <span>Total: ₹${ord.total} (${ord.paymentMode})</span>
                   <span class="text-[10px] text-slate-400 font-medium">${ord.spot}</span>
                 </div>
+
+                <!-- WhatsApp Status Update Button -->
+                <button onclick="sendWhatsAppUpdate('${ord.phone}', '${ord.orderId}', '${ord.status}', '${ord.customerName}')" class="w-full mt-2 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-extrabold rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition active:scale-95">
+                  <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></path></svg>
+                  <span>Send Status on WhatsApp</span>
+                </button>
               </div>
             `;
           });
@@ -380,7 +434,7 @@
     }
 
     renderMenu();
-    const savedUser = JSON.parse(localStorage.getItem('bunk_user_profile') || '{}');
+    const savedUser = JSON.parse(localStorage.getItem('ice_spot_user_profile') || '{}');
     if (savedUser.phone) listenToMyOrders(savedUser.phone);
     lucide.createIcons();
   </script>
