@@ -86,10 +86,11 @@
     </div>
 
     <!-- Navigation Tabs -->
-    <div class="px-4 max-w-6xl mx-auto mb-4 flex gap-2 border-b border-slate-800 pb-3">
-      <button onclick="switchTab('active')" id="tabActiveBtn" class="px-4 py-1.5 rounded-xl text-xs font-black bg-blue-600 text-white transition">Active Orders</button>
-      <button onclick="switchTab('stock')" id="tabStockBtn" class="px-4 py-1.5 rounded-xl text-xs font-black bg-slate-900 text-slate-400 border border-slate-800 transition">📦 Stock Counter</button>
-      <button onclick="switchTab('completed')" id="tabCompletedBtn" class="px-4 py-1.5 rounded-xl text-xs font-black bg-slate-900 text-slate-400 border border-slate-800 transition">Completed History</button>
+    <div class="px-4 max-w-6xl mx-auto mb-4 flex gap-2 border-b border-slate-800 pb-3 overflow-x-auto hide-scrollbar">
+      <button onclick="switchTab('active')" id="tabActiveBtn" class="px-4 py-1.5 rounded-xl text-xs font-black bg-blue-600 text-white transition whitespace-nowrap">Active Orders</button>
+      <button onclick="switchTab('stock')" id="tabStockBtn" class="px-4 py-1.5 rounded-xl text-xs font-black bg-slate-900 text-slate-400 border border-slate-800 transition whitespace-nowrap">📦 Stock Counter</button>
+      <button onclick="switchTab('completed')" id="tabCompletedBtn" class="px-4 py-1.5 rounded-xl text-xs font-black bg-slate-900 text-slate-400 border border-slate-800 transition whitespace-nowrap">Completed History</button>
+      <button onclick="switchTab('feedback')" id="tabFeedbackBtn" class="px-4 py-1.5 rounded-xl text-xs font-black bg-slate-900 text-slate-400 border border-slate-800 transition whitespace-nowrap">⭐ Customer Feedback</button>
     </div>
 
     <!-- Orders Queue Grid -->
@@ -107,6 +108,19 @@
           </div>
         </div>
         <div id="stockList" class="space-y-2.5"></div>
+      </div>
+    </main>
+
+    <!-- Customer Feedback Section -->
+    <main id="feedbackSection" class="p-4 max-w-4xl mx-auto hidden">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-sm font-black text-white">Customer Feedback & Ratings</h3>
+            <p class="text-xs text-slate-400">Reviews submitted by customers after order completion.</p>
+          </div>
+        </div>
+        <div id="feedbackList" class="space-y-3"></div>
       </div>
     </main>
   </div>
@@ -129,106 +143,22 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const menuItems = [
-  { 
-    id: 'm1', 
-    name: "Cotton Candy Bites", 
-    desc: "Cotton Candy Flavored Ice Cream", 
-    price: 5, 
-    pic: "cottan candy.png" 
-  },
-  { 
-    id: 'm2', 
-    name: "Popitos", 
-    desc: "Kaccha Mango Flavored Ice Candy", 
-    price: 5, 
-    pic: "popitos.png" 
-  },
-  { 
-    id: 'm3', 
-    name: "Ice Cream Donut", 
-    desc: "Cream 'N' Cookie Flavored Donut", 
-    price: 10, 
-    pic: "donut.png" 
-  },
-  { 
-    id: 'm4', 
-    name: "Chocobar Mini", 
-    desc: "Chocolate Coated Vanilla Ice Cream", 
-    price: 20, 
-    pic: "chocobar mini.png" 
-  },
-  { 
-    id: 'm5', 
-    name: "Spiral", 
-    desc: "Mango and Litchi Flavored Swirl", 
-    price: 20, 
-    pic: "spiral.png" 
-  },
-  { 
-    id: 'm6', 
-    name: "2-in-1 (Mango & Vanilla)", 
-    desc: "Mango & Vanilla Flavored Ice Cream", 
-    price: 30, 
-    pic: "two-in-one.png" 
-  },
-  { 
-    id: 'm7', 
-    name: "2-in-1 (Berry & Vanilla)", 
-    desc: "Strawberry & Blackcurrant Ice Cream", 
-    price: 30, 
-    pic: "twins.png" 
-  },
-  { 
-    id: 'm8', 
-    name: "Little Love", 
-    desc: "Berry Flavored Heart with White Choco", 
-    price: 30, 
-    pic: "little love.png" 
-  },
-  { 
-    id: 'm9', 
-    name: "Neapolitan", 
-    desc: "Vanilla, Strawberry & Chocolate Trio", 
-    price: 30, 
-    pic: "neapolitan1.png" 
-  },
-  { 
-    id: 'm10', 
-    name: "ibar Mini (Mango Delight)", 
-    desc: "Mango Delight with White Dip Coating", 
-    price: 40, 
-    pic: "mango delight.png" 
-  },
-  { 
-    id: 'm11', 
-    name: "Dual Bar (Butterscotch)", 
-    desc: "Butterscotch & Vanilla Swirl Bar", 
-    price: 50, 
-    pic: "dual-butter.png" 
-  },
-  { 
-    id: 'm12', 
-    name: "Dual Bar (Strawberry)", 
-    desc: "Strawberry & Vanilla Flavored Bar", 
-    price: 50, 
-    pic: "dual strawberry.png" 
-  },
-  { 
-    id: 'm13', 
-    name: "Kulfi King", 
-    desc: "Traditional Pista Badam Desi Kulfi", 
-    price: 50, 
-    pic: "Kulfi king1.png" 
-  },
-  { 
-    id: 'm14', 
-    name: "ibar Mini (Belgian Choco)", 
-    desc: "Rich Belgian Chocolate Flavored Bar", 
-    price: 50, 
-    pic: "Belgian choco.png" 
-  }
-];
+    const catalogItems = [
+      { id: 'm1', name: "Cotton Candy", desc: "Sweet & fluffy cloud of happiness", price: 5 },
+      { id: 'm2', name: "Popitis", desc: "Tangy katcha mango burst", price: 5 },
+      { id: 'm3', name: "Donut", desc: "Cream & cookie frozen delight", price: 15 },
+      { id: 'm4', name: "Chocobar Mini", desc: "Crunchy chocolate coated snack", price: 25 },
+      { id: 'm5', name: "Spiral", desc: "Twirled colorful joy pop", price: 30 },
+      { id: 'm6', name: "2 in 1 (Mango & Vanilla)", desc: "Double flavor fruity-creamy rush", price: 40 },
+      { id: 'm7', name: "2 in 1 (Strawberry & Blackcurrant)", desc: "Berry fusion dual taste", price: 40 },
+      { id: 'm8', name: "Little Love", desc: "Sweet heart bar for sweet moments", price: 40 },
+      { id: 'm9', name: "Neapolitan", desc: "Classic multi-layer brick slice", price: 40 },
+      { id: 'm10', name: "Ibar Mini (Mango Delight)", desc: "Rich & refreshing mango bar", price: 55 },
+      { id: 'm11', name: "Kulfi King", desc: "Traditional royal malai kulfi", price: 65 },
+      { id: 'm12', name: "Ibar Mini (Belgian Choco)", desc: "Premium rich chocolate indulgence", price: 65 },
+      { id: 'm13', name: "Dual Bar (Butterscotch & Vanilla)", desc: "Double crunchy caramel blast", price: 70 },
+      { id: 'm14', name: "Dual Bar (Strawberry & Vanilla)", desc: "Smooth strawberry & creamy vanilla", price: 70 }
+    ];
 
     let currentTab = 'active';
     let allOrders = [];
@@ -269,7 +199,7 @@
       } catch (e) {}
     }
 
-    // Feature 2: Voice Announcement Speaker
+    // Voice Announcement Speaker
     function speakCallout(text) {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -285,21 +215,30 @@
       const actBtn = document.getElementById('tabActiveBtn');
       const stcBtn = document.getElementById('tabStockBtn');
       const comBtn = document.getElementById('tabCompletedBtn');
+      const fdbBtn = document.getElementById('tabFeedbackBtn');
+      
       const ordersSec = document.getElementById('ordersSection');
       const stockSec = document.getElementById('stockSection');
+      const feedbackSec = document.getElementById('feedbackSection');
 
-      [actBtn, stcBtn, comBtn].forEach(b => b.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-slate-900 text-slate-400 border border-slate-800 transition");
+      [actBtn, stcBtn, comBtn, fdbBtn].forEach(b => b.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-slate-900 text-slate-400 border border-slate-800 transition whitespace-nowrap");
+
+      ordersSec.classList.add('hidden');
+      stockSec.classList.add('hidden');
+      feedbackSec.classList.add('hidden');
 
       if (tab === 'stock') {
-        stcBtn.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-sky-500 text-white transition";
-        ordersSec.classList.add('hidden');
+        stcBtn.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-sky-500 text-white transition whitespace-nowrap";
         stockSec.classList.remove('hidden');
         renderStockUI();
+      } else if (tab === 'feedback') {
+        fdbBtn.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-amber-500 text-white transition whitespace-nowrap";
+        feedbackSec.classList.remove('hidden');
+        renderFeedbackUI();
       } else {
-        stockSec.classList.add('hidden');
         ordersSec.classList.remove('hidden');
-        if (tab === 'active') actBtn.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-blue-600 text-white transition";
-        if (tab === 'completed') comBtn.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-emerald-600 text-white transition";
+        if (tab === 'active') actBtn.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-blue-600 text-white transition whitespace-nowrap";
+        if (tab === 'completed') comBtn.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-emerald-600 text-white transition whitespace-nowrap";
         renderOrdersUI();
       }
     }
@@ -312,7 +251,7 @@
       let itemsStr = '';
       ord.items.forEach(i => itemsStr += `• ${i.name} x ${i.qty} = ₹${i.price * i.qty}\n`);
 
-      const msg = `🍦 *THE ICE SPOT - RECEIPT* 🍦\n------------------------\n*Order ID:* #${ord.orderId}\n*Customer:* ${ord.customerName}\n*Spot:* ${ord.spot}\n------------------------\n${itemsStr}------------------------\n*GRAND TOTAL: ₹${ord.total}*\n*Payment Mode:* ${ord.paymentMode}\n*Status:* Completed & Delivered ✅\n------------------------\nThank you for ordering at *The Ice Spot*! ✨`;
+      const msg = ` *THE ICE SPOT - RECEIPT* \n------------------------\n*Order ID:* #${ord.orderId}\n*Customer:* ${ord.customerName}\n*Spot:* ${ord.spot}\n------------------------\n${itemsStr}------------------------\n*GRAND TOTAL: ₹${ord.total}*\n*Payment Mode:* ${ord.paymentMode}\n*Status:* Completed & Delivered \n------------------------\nThank you for ordering at *The Ice Spot*! `;
       window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
@@ -337,7 +276,8 @@
         document.getElementById('statActive').innerText = act;
         document.getElementById('statCompleted').innerText = comp;
 
-        if (currentTab !== 'stock') renderOrdersUI();
+        if (currentTab === 'active' || currentTab === 'completed') renderOrdersUI();
+        if (currentTab === 'feedback') renderFeedbackUI();
       });
 
       // 2. Realtime Inventory Stream
@@ -362,6 +302,12 @@
         const encoded = encodeURIComponent(JSON.stringify(ord));
         const card = document.createElement('div');
         card.className = "bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl";
+        
+        let feedbackBadge = '';
+        if (ord.feedback) {
+          feedbackBadge = `<div class="mt-2 text-[11px] bg-amber-500/10 border border-amber-500/30 text-amber-300 p-2 rounded-xl">⭐ Rating: ${ord.feedback.rating}/5 — "${ord.feedback.comment}"</div>`;
+        }
+
         card.innerHTML = `
           <div class="flex justify-between items-start mb-2">
             <div>
@@ -371,10 +317,11 @@
             <span class="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${ord.status === 'Placed' ? 'badge-placed' : ord.status === 'Preparing' ? 'badge-prep' : 'badge-ready'}">${ord.status}</span>
           </div>
           <p class="text-[11px] text-slate-400 mb-2">📍 ${ord.spot} | 📞 ${ord.phone}</p>
-          <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 mb-3 space-y-0.5">
+          <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 mb-2 space-y-0.5">
             ${ord.items.map(i => `<div class="flex justify-between text-xs"><span>${i.name} × ${i.qty}</span><span class="font-bold">₹${i.price * i.qty}</span></div>`).join('')}
           </div>
-          <div class="pt-2 border-t border-slate-800 flex justify-between items-center">
+          ${feedbackBadge}
+          <div class="pt-2 border-t border-slate-800 flex justify-between items-center mt-2">
             <span class="text-sm font-black text-white">₹${ord.total}</span>
             <div class="flex gap-1.5">
               <button onclick="sendWhatsAppBill('${encoded}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold rounded-lg shadow transition">📱 Bill</button>
@@ -387,6 +334,36 @@
         container.appendChild(card);
       });
       lucide.createIcons();
+    }
+
+    // Render Dedicated Feedback Tab UI
+    function renderFeedbackUI() {
+      const container = document.getElementById('feedbackList');
+      container.innerHTML = '';
+
+      const feedbackOrders = allOrders.filter(ord => ord.feedback);
+
+      if (feedbackOrders.length === 0) {
+        container.innerHTML = `<div class="py-12 text-center text-slate-500 text-xs font-semibold">No customer feedback received yet.</div>`;
+        return;
+      }
+
+      feedbackOrders.forEach(ord => {
+        const row = document.createElement('div');
+        row.className = "p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-1.5";
+        row.innerHTML = `
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-black text-sky-400">${ord.customerName} <span class="text-slate-500 font-normal">(#${ord.orderId})</span></span>
+            <span class="text-xs font-bold text-amber-400">${'★'.repeat(ord.feedback.rating)}${'☆'.repeat(5 - ord.feedback.rating)} (${ord.feedback.rating}/5)</span>
+          </div>
+          <p class="text-xs text-slate-300 italic">"${ord.feedback.comment}"</p>
+          <div class="text-[10px] text-slate-500 pt-1 border-t border-slate-900 flex justify-between">
+            <span>Spot: ${ord.spot}</span>
+            <span>Phone: ${ord.phone}</span>
+          </div>
+        `;
+        container.appendChild(row);
+      });
     }
 
     // Trigger Voice Callout on Ready
@@ -414,14 +391,12 @@
           </div>
 
           <div class="flex items-center gap-2">
-            <!-- Exact Stock Counter -->
             <div class="flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2 py-1 gap-2">
               <span class="text-[10px] text-slate-400 font-semibold">Qty:</span>
               <input type="number" min="0" value="${itemState.stock}" onchange="setCustomStock('${item.id}', this.value)" 
                 class="w-12 bg-transparent text-center font-bold text-xs text-sky-400 focus:outline-none">
             </div>
 
-            <!-- Instant Sold Out Toggle Button -->
             <button onclick="toggleSoldOut('${item.id}', ${!isSoldOut})" 
               class="px-3 py-1.5 rounded-xl text-xs font-bold transition ${isSoldOut ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'}">
               ${isSoldOut ? 'Available' : 'Sold Out'}
@@ -434,7 +409,6 @@
 
     async function setCustomStock(itemId, count) {
       const newCount = Math.max(0, parseInt(count) || 0);
-      const existing = inventoryState[itemId] || {};
       inventoryState[itemId] = {
         stock: newCount,
         soldOut: newCount === 0
